@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Serviço da aplicação Spring Boot
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: seletivo-app
+    hostname: seletivo-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/seletivo
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - MINIO_ENDPOINT=http://minio:9002
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - seletivo-network
+    restart: unless-stopped
+
+  # Serviço de banco de dados PostgreSQL
+  db:
+    image: postgres:17
+    container_name: seletivo-db
+    hostname: seletivo-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=seletivo
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d  # Monta o diretório com o script de inicialização
+    networks:
+      - seletivo-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d seletivo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Serviço MinIO para armazenamento de objetos
+  minio:
+    image: minio/minio:latest
+    container_name: seletivo-minio
+    hostname: seletivo-minio
+    ports:
+      - "9000:9000"  # API MinIO
+      - "9001:9001"  # Console MinIO
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - seletivo-network
+    restart: unless-stopped
+
+networks:
+  seletivo-network:
+    driver: bridge
+
+volumes:
+  postgres_data:  
+  minio_data:
