@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "pessoa")
 @Data
@@ -36,13 +38,14 @@ public class Pessoa {
     @Column(name = "pes_pai")
     private String pai;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-            name = "pessoa_endereco",
-            joinColumns = @JoinColumn(name = "pes_id"),
-            inverseJoinColumns = @JoinColumn(name = "end_id")
+        name = "pessoa_endereco",
+        joinColumns = @JoinColumn(name = "pes_id"),
+        inverseJoinColumns = @JoinColumn(name = "end_id")
     )
     private Set<Endereco> enderecos = new HashSet<>();
+
 
     @OneToMany(mappedBy = "pessoa", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<FotoPessoa> fotos = new HashSet<>();
@@ -55,4 +58,24 @@ public class Pessoa {
 
     @OneToMany(mappedBy = "pessoa", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Lotacao> lotacoes = new HashSet<>();
+
+    public void addEndereco(Endereco endereco) {
+        enderecos.add(endereco);
+        endereco.setPessoa(this);
+    }
+
+    public void removeEndereco(Endereco endereco) {
+        enderecos.remove(endereco);
+        endereco.setPessoa(null);
+    }
+
+    @Override
+    public String toString() {
+        return "Pessoa{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", dataNascimento=" + dataNascimento +
+                ", sexo='" + sexo + '\'' +
+                '}';
+    }
 }

@@ -1,7 +1,8 @@
 package com.example.seletivo.controller;
 
 import com.example.seletivo.model.dto.FotoPessoaDTO;
-import com.example.seletivo.service.FotoPessoaService;
+import com.example.seletivo.model.service.FotoPessoaService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +44,8 @@ public class FotoPessoaController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir foto")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         fotoPessoaService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(true);
     }
 }

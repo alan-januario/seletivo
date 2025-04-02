@@ -2,7 +2,8 @@ package com.example.seletivo.controller;
 
 import com.example.seletivo.model.dto.EnderecoFuncionalDTO;
 import com.example.seletivo.model.dto.ServidorEfetivoDTO;
-import com.example.seletivo.service.ServidorEfetivoService;
+import com.example.seletivo.model.service.ServidorEfetivoService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -42,14 +43,15 @@ public class ServidorEfetivoController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar servidor efetivo")
     public ResponseEntity<ServidorEfetivoDTO> update(@PathVariable Long id, @Valid @RequestBody ServidorEfetivoDTO servidorEfetivoDTO) {
-        return ResponseEntity.ok(servidorEfetivoService.update(id, servidorEfetivoDTO));
+        servidorEfetivoDTO.setId(id);
+        return ResponseEntity.ok(servidorEfetivoService.save(servidorEfetivoDTO));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir servidor efetivo")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         servidorEfetivoService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(true);
     }
 
     @GetMapping("/unidade/{unidadeId}")

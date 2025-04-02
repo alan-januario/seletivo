@@ -1,4 +1,4 @@
-package com.example.seletivo.security;
+package com.example.seletivo.model.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

@@ -1,9 +1,10 @@
 package com.example.seletivo.config;
 
-import com.example.seletivo.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import com.example.seletivo.model.service.UsuarioService;
 
 @Component
 @RequiredArgsConstructor

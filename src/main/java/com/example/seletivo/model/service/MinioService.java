@@ -1,4 +1,4 @@
-package com.example.seletivo.service;
+package com.example.seletivo.model.service;
 
 import io.minio.*;
 import io.minio.http.Method;

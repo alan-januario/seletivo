@@ -3,7 +3,8 @@ package com.example.seletivo.controller;
 import com.example.seletivo.model.dto.AuthRequestDTO;
 import com.example.seletivo.model.dto.AuthResponseDTO;
 import com.example.seletivo.model.dto.RefreshTokenRequestDTO;
-import com.example.seletivo.security.JwtTokenProvider;
+import com.example.seletivo.model.security.JwtTokenProvider;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

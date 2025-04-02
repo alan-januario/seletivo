@@ -1,7 +1,8 @@
-package com.example.seletivo.security;
+package com.example.seletivo.model.security;
 
 import com.example.seletivo.model.entity.Usuario;
-import com.example.seletivo.repository.UsuarioRepository;
+import com.example.seletivo.model.repository.UsuarioRepository;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

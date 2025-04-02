@@ -1,27 +1,30 @@
 package com.example.seletivo.model.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Dados de endereço")
 public class EnderecoDTO {
+    @Schema(description = "ID do endereço", example = "null")
     private Long id;
     
+    @Schema(description = "Tipo de logradouro", example = "Rua")
     private String tipoLogradouro;
     
-    @NotBlank(message = "{validation.endereco.logradouro.notblank}")
+    @Schema(description = "Logradouro", example = "das Flores")
     private String logradouro;
     
+    @Schema(description = "Número", example = "123")
     private String numero;
     
-    @NotBlank(message = "{validation.endereco.bairro.notblank}")
+    @Schema(description = "Bairro", example = "Centro")
     private String bairro;
     
-    @NotNull(message = "{validation.endereco.cidade.notnull}")
+    @Schema(description = "Cidade")
     private CidadeDTO cidade;
 }

@@ -1,7 +1,8 @@
 package com.example.seletivo.controller;
 
 import com.example.seletivo.model.dto.UnidadeDTO;
-import com.example.seletivo.service.UnidadeService;
+import com.example.seletivo.model.service.UnidadeService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -41,13 +42,14 @@ public class UnidadeController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar unidade")
     public ResponseEntity<UnidadeDTO> update(@PathVariable Long id, @Valid @RequestBody UnidadeDTO unidadeDTO) {
-        return ResponseEntity.ok(unidadeService.update(id, unidadeDTO));
+        unidadeDTO.setId(id);
+        return ResponseEntity.ok(unidadeService.save(unidadeDTO));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir unidade")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         unidadeService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(true);
     }
 }

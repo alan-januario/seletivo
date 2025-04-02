@@ -1,9 +1,10 @@
-package com.example.seletivo.service;
+package com.example.seletivo.model.service;
 
 import com.example.seletivo.model.dto.EnderecoDTO;
 import com.example.seletivo.model.entity.Endereco;
 import com.example.seletivo.model.mapper.EnderecoMapper;
-import com.example.seletivo.repository.EnderecoRepository;
+import com.example.seletivo.model.repository.EnderecoRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

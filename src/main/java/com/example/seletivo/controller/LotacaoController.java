@@ -1,7 +1,8 @@
 package com.example.seletivo.controller;
 
 import com.example.seletivo.model.dto.LotacaoDTO;
-import com.example.seletivo.service.LotacaoService;
+import com.example.seletivo.model.service.LotacaoService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -41,13 +42,14 @@ public class LotacaoController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar lotação")
     public ResponseEntity<LotacaoDTO> update(@PathVariable Long id, @Valid @RequestBody LotacaoDTO lotacaoDTO) {
-        return ResponseEntity.ok(lotacaoService.update(id, lotacaoDTO));
+        lotacaoDTO.setId(id);
+        return ResponseEntity.ok(lotacaoService.save(lotacaoDTO));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir lotação")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         lotacaoService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(true);
     }
 }

@@ -1,7 +1,8 @@
-package com.example.seletivo.service;
+package com.example.seletivo.model.service;
 
 import com.example.seletivo.model.entity.Usuario;
-import com.example.seletivo.repository.UsuarioRepository;
+import com.example.seletivo.model.repository.UsuarioRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

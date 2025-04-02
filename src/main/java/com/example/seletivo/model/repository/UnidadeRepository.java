@@ -1,4 +1,4 @@
-package com.example.seletivo.repository;
+package com.example.seletivo.model.repository;
 
 import com.example.seletivo.model.entity.Unidade;
 import org.springframework.data.domain.Page;

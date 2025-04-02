@@ -1,36 +1,47 @@
 package com.example.seletivo.config;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@OpenAPIDefinition(
+        info = @Info(
+                title = "API do Sistema Seletivo",
+                description = "API para gerenciamento de processos seletivos. Exemplo paginação: {\r\n" + //
+                                "  \"page\": 0,\r\n" + //
+                                "  \"size\": 10,\r\n" + //
+                                "  \"sort\": \"id,desc\"\r\n" + //
+                                "}\r\n" + //
+                                "",
+                version = "1.0.0"
+        )
+)
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 public class OpenApiConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "bearerAuth";
-        
         return new OpenAPI()
-                .info(new Info()
-                        .title("API de Gerenciamento de Servidores Públicos")
-                        .description("API para gerenciamento de servidores efetivos, temporários, unidades e lotações")
-                        .version("1.0.0")
-                        .contact(new Contact()
-                                .name("Administrador")
-                                .email("admin@example.com")))
-                .addSecurityItem(new SecurityRequirement()
-                        .addList(securitySchemeName))
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
-                        .addSecuritySchemes(securitySchemeName, new SecurityScheme()
-                                .name(securitySchemeName)
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")));
-    }
+                        .addSecuritySchemes("bearerAuth", 
+                                new io.swagger.v3.oas.models.security.SecurityScheme()
+                                        .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                                        .in(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER)
+                                        .name("Authorization")));
+    }            
 }

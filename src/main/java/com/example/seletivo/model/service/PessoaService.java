@@ -1,10 +1,13 @@
-package com.example.seletivo.service;
+package com.example.seletivo.model.service;
 
 import com.example.seletivo.exception.ResourceNotFoundException;
 import com.example.seletivo.model.dto.PessoaDTO;
+import com.example.seletivo.model.entity.Endereco;
 import com.example.seletivo.model.entity.Pessoa;
 import com.example.seletivo.model.mapper.PessoaMapper;
-import com.example.seletivo.repository.PessoaRepository;
+import com.example.seletivo.model.repository.EnderecoRepository;
+import com.example.seletivo.model.repository.PessoaRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -13,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Service
 @RequiredArgsConstructor
 public class PessoaService {
@@ -20,6 +24,7 @@ public class PessoaService {
     private final PessoaRepository pessoaRepository;
     private final PessoaMapper pessoaMapper;
     private final MessageSource messageSource;
+    private final EnderecoRepository enderecoRepository;
 
     public Page<PessoaDTO> findAll(Pageable pageable) {
         return pessoaRepository.findAll(pageable)
@@ -74,5 +79,17 @@ public class PessoaService {
     public Page<PessoaDTO> findByNome(String nome, Pageable pageable) {
         return pessoaRepository.findByNomeContaining(nome, pageable)
                 .map(pessoaMapper::toDto);
+    }
+
+    @Transactional
+    public void adicionarEndereco(Long pessoaId, Long enderecoId) {
+        Pessoa pessoa = pessoaRepository.findById(pessoaId)
+            .orElseThrow(() -> new ResourceNotFoundException("Pessoa não encontrada"));
+        
+        Endereco endereco = enderecoRepository.findById(enderecoId)
+            .orElseThrow(() -> new ResourceNotFoundException("Endereço não encontrado"));
+        
+        pessoa.getEnderecos().add(endereco);
+        pessoaRepository.save(pessoa);
     }
 }

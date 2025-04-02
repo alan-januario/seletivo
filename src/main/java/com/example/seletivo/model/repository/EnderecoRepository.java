@@ -1,4 +1,4 @@
-package com.example.seletivo.repository;
+package com.example.seletivo.model.repository;
 
 import com.example.seletivo.model.entity.Endereco;
 import org.springframework.data.jpa.repository.JpaRepository;

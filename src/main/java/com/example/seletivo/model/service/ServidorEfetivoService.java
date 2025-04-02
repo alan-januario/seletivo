@@ -1,24 +1,35 @@
-package com.example.seletivo.service;
+package com.example.seletivo.model.service;
 
 import com.example.seletivo.exception.ResourceNotFoundException;
+import com.example.seletivo.model.dto.EnderecoDTO;
 import com.example.seletivo.model.dto.EnderecoFuncionalDTO;
 import com.example.seletivo.model.dto.ServidorEfetivoDTO;
+import com.example.seletivo.model.entity.Cidade;
 import com.example.seletivo.model.entity.Endereco;
 import com.example.seletivo.model.entity.Lotacao;
+import com.example.seletivo.model.entity.Pessoa;
 import com.example.seletivo.model.entity.ServidorEfetivo;
 import com.example.seletivo.model.entity.Unidade;
 import com.example.seletivo.model.mapper.ServidorEfetivoMapper;
-import com.example.seletivo.repository.LotacaoRepository;
-import com.example.seletivo.repository.ServidorEfetivoRepository;
-import com.example.seletivo.repository.UnidadeRepository;
+import com.example.seletivo.model.repository.CidadeRepository;
+import com.example.seletivo.model.repository.EnderecoRepository;
+import com.example.seletivo.model.repository.LotacaoRepository;
+import com.example.seletivo.model.repository.ServidorEfetivoRepository;
+import com.example.seletivo.model.repository.UnidadeRepository;
+import com.example.seletivo.model.repository.PessoaRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,9 +41,22 @@ public class ServidorEfetivoService {
     private final ServidorEfetivoMapper servidorEfetivoMapper;
     private final MessageSource messageSource;
     private final UnidadeRepository unidadeRepository;
+    private final EnderecoRepository enderecoRepository;
+    private final CidadeRepository cidadeRepository;    
+    private final PessoaRepository pessoaRepository;
 
     public Page<ServidorEfetivoDTO> findAll(Pageable pageable) {
-        return servidorEfetivoRepository.findAll(pageable)
+        // Criar um novo Pageable com ordenação por ID decrescente se não houver ordenação definida
+        Pageable pageableWithSort = pageable;
+        if (!pageable.getSort().isSorted()) {
+            pageableWithSort = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "id")
+            );
+        }
+        
+        return servidorEfetivoRepository.findAll(pageableWithSort)
                 .map(servidorEfetivoMapper::toDto);
     }
 
@@ -48,9 +72,75 @@ public class ServidorEfetivoService {
 
     @Transactional
     public ServidorEfetivoDTO save(ServidorEfetivoDTO servidorEfetivoDTO) {
-        ServidorEfetivo servidorEfetivo = servidorEfetivoMapper.toEntity(servidorEfetivoDTO);
-        servidorEfetivo = servidorEfetivoRepository.save(servidorEfetivo);
-        return servidorEfetivoMapper.toDto(servidorEfetivo);
+        try {
+            // 1. Criar a pessoa
+            Pessoa pessoa = new Pessoa();
+            if (servidorEfetivoDTO.getPessoa() != null) {
+                pessoa.setNome(servidorEfetivoDTO.getPessoa().getNome());
+                pessoa.setDataNascimento(servidorEfetivoDTO.getPessoa().getDataNascimento());
+                pessoa.setSexo(servidorEfetivoDTO.getPessoa().getSexo());
+                pessoa.setMae(servidorEfetivoDTO.getPessoa().getMae());
+                pessoa.setPai(servidorEfetivoDTO.getPessoa().getPai());
+                pessoa.setEnderecos(new HashSet<>());
+                pessoa.setFotos(new HashSet<>());
+                pessoa.setLotacoes(new HashSet<>());
+            }
+            
+            // 2. Criar o servidor efetivo e associá-lo à pessoa
+            ServidorEfetivo servidorEfetivo = new ServidorEfetivo();
+            servidorEfetivo.setMatricula(servidorEfetivoDTO.getMatricula());
+            servidorEfetivo.setPessoa(pessoa);
+            pessoa.setServidorEfetivo(servidorEfetivo);
+            
+            // 3. Salvar a pessoa (isso salvará o servidor efetivo em cascata)
+            pessoa = pessoaRepository.save(pessoa);
+            
+            // 4. Processar endereços se existirem
+            if (servidorEfetivoDTO.getPessoa() != null && 
+                servidorEfetivoDTO.getPessoa().getEnderecos() != null) {
+                
+                for (EnderecoDTO enderecoDTO : servidorEfetivoDTO.getPessoa().getEnderecos()) {
+                    // Criar e configurar o endereço
+                    Endereco endereco = new Endereco();
+                    endereco.setTipoLogradouro(enderecoDTO.getTipoLogradouro());
+                    endereco.setLogradouro(enderecoDTO.getLogradouro());
+                    endereco.setNumero(enderecoDTO.getNumero());
+                    endereco.setBairro(enderecoDTO.getBairro());
+                    
+                    // Processar a cidade
+                    if (enderecoDTO.getCidade() != null) {
+                        Cidade cidade;
+                        List<Cidade> cidades = cidadeRepository.findByNomeContainingIgnoreCase(
+                            enderecoDTO.getCidade().getNome());
+                        
+                        if (!cidades.isEmpty()) {
+                            cidade = cidades.get(0);
+                        } else {
+                            cidade = new Cidade();
+                            cidade.setNome(enderecoDTO.getCidade().getNome());
+                            cidade.setUf(enderecoDTO.getCidade().getUf());
+                            cidade = cidadeRepository.save(cidade);
+                        }
+                        
+                        endereco.setCidade(cidade);
+                    }
+                    
+                    // Salvar o endereço
+                    endereco = enderecoRepository.save(endereco);
+                    
+                    // Inserir na tabela de junção usando JDBC
+                    servidorEfetivoRepository.adicionarEnderecoPessoa(pessoa.getId(), endereco.getId());
+                }
+            }
+      
+            ServidorEfetivo servidorAtualizado = servidorEfetivoRepository.findById(pessoa.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Servidor não encontrado após salvar"));
+            
+            return servidorEfetivoMapper.toDto(servidorAtualizado);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @Transactional
@@ -71,6 +161,7 @@ public class ServidorEfetivoService {
 
     @Transactional
     public void delete(Long id) {
+        // Verificar se o servidor efetivo existe
         if (!servidorEfetivoRepository.existsById(id)) {
             throw new ResourceNotFoundException(
                     messageSource.getMessage("error.servidorEfetivo.notfound", 
@@ -78,7 +169,16 @@ public class ServidorEfetivoService {
                             LocaleContextHolder.getLocale())
             );
         }
-        servidorEfetivoRepository.deleteById(id);
+        
+        try {
+            // Usar o método personalizado do repository para excluir
+            servidorEfetivoRepository.deleteServidorEfetivoById(id);
+            
+            // Log para confirmar a exclusão
+            System.out.println("Servidor efetivo com ID " + id + " excluído com sucesso.");
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao excluir servidor efetivo: " + e.getMessage(), e);
+        }
     }
     
     public Page<ServidorEfetivoDTO> findByNome(String nome, Pageable pageable) {
@@ -103,11 +203,12 @@ public class ServidorEfetivoService {
                 ));
         
         // Buscar servidores efetivos pela unidade
-        Page<ServidorEfetivo> servidores = servidorEfetivoRepository.findByUnidadeId(unidadeId, pageable);
+        Page<ServidorEfetivo> servidores = servidorEfetivoRepository.findByUnidadeAtual(unidadeId, pageable);
         
         // Converter para DTOs
         return servidores.map(servidorEfetivoMapper::toDto);
     }
+    
     
     public Page<EnderecoFuncionalDTO> findEnderecoFuncionalByNome(String nome, Pageable pageable) {
         Page<ServidorEfetivo> servidores = servidorEfetivoRepository.findByNomeContaining(nome, pageable);

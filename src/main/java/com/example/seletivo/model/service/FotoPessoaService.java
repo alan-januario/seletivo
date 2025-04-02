@@ -1,4 +1,4 @@
-package com.example.seletivo.service;
+package com.example.seletivo.model.service;
 
 import com.example.seletivo.exception.MinioException;
 import com.example.seletivo.exception.ResourceNotFoundException;
@@ -6,8 +6,9 @@ import com.example.seletivo.model.dto.FotoPessoaDTO;
 import com.example.seletivo.model.entity.FotoPessoa;
 import com.example.seletivo.model.entity.Pessoa;
 import com.example.seletivo.model.mapper.FotoPessoaMapper;
-import com.example.seletivo.repository.FotoPessoaRepository;
-import com.example.seletivo.repository.PessoaRepository;
+import com.example.seletivo.model.repository.FotoPessoaRepository;
+import com.example.seletivo.model.repository.PessoaRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;

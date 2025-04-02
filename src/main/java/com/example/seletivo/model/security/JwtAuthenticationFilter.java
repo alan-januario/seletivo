@@ -1,4 +1,4 @@
-package com.example.seletivo.security;
+package com.example.seletivo.model.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

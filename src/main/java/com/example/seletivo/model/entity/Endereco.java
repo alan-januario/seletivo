@@ -1,12 +1,11 @@
 package com.example.seletivo.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "endereco")
@@ -27,18 +26,26 @@ public class Endereco {
     private String logradouro;
 
     @Column(name = "end_numero")
-    private Integer numero;
+    private String numero;
 
     @Column(name = "end_bairro", nullable = false)
     private String bairro;
 
+    @JsonBackReference
     @ManyToOne
-    @JoinColumn(name = "cid_id", nullable = false)
+    @JoinColumn(name = "pes_id")
+    private Pessoa pessoa;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cid_id")
     private Cidade cidade;
 
-    @ManyToMany(mappedBy = "enderecos")
-    private Set<Pessoa> pessoas = new HashSet<>();
+    public Pessoa getPessoa() {
+        return pessoa;
+    }
 
-    @ManyToMany(mappedBy = "enderecos")
-    private Set<Unidade> unidades = new HashSet<>();
+    public void setPessoa(Pessoa pessoa) {
+        this.pessoa = pessoa;
+    }
 }

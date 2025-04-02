@@ -1,8 +1,11 @@
-package com.example.seletivo.service;
+package com.example.seletivo.model.service;
 
 import com.example.seletivo.model.dto.CidadeDTO;
+import com.example.seletivo.model.entity.Cidade;
 import com.example.seletivo.model.mapper.CidadeMapper;
-import com.example.seletivo.repository.CidadeRepository;
+import com.example.seletivo.model.repository.CidadeRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,5 +36,12 @@ public class CidadeService {
         return cidadeRepository.findByNomeContainingIgnoreCase(nome).stream()
                 .map(cidadeMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public CidadeDTO save(CidadeDTO cidadeDTO) {
+        Cidade cidade = cidadeMapper.toEntity(cidadeDTO);
+        cidade = cidadeRepository.save(cidade);
+        return cidadeMapper.toDto(cidade);
     }
 }

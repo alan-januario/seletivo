@@ -1,7 +1,8 @@
 package com.example.seletivo.controller;
 
 import com.example.seletivo.model.dto.ServidorTemporarioDTO;
-import com.example.seletivo.service.ServidorTemporarioService;
+import com.example.seletivo.model.service.ServidorTemporarioService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -41,13 +42,14 @@ public class ServidorTemporarioController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar servidor temporário")
     public ResponseEntity<ServidorTemporarioDTO> update(@PathVariable Long id, @Valid @RequestBody ServidorTemporarioDTO servidorTemporarioDTO) {
-        return ResponseEntity.ok(servidorTemporarioService.update(id, servidorTemporarioDTO));
+        servidorTemporarioDTO.setId(id);
+        return ResponseEntity.ok(servidorTemporarioService.save(servidorTemporarioDTO));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir servidor temporário")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         servidorTemporarioService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(true);
     }
 }
