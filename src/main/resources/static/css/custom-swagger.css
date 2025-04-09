@@ -1,0 +1,4 @@
+/* Ocultar o campo de input do token Bearer */
+input#auth-bearer-value[type="text"][aria-label="auth-bearer-value"] {
+    display: none !important;
+}

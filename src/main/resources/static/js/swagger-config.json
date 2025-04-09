@@ -1,0 +1,18 @@
+{
+  "urls": [
+    {
+      "url": "/v3/api-docs",
+      "name": "API Seletivo"
+    }
+  ],
+  "validatorUrl": null,
+  "docExpansion": "list",
+  "deepLinking": true,
+  "filter": true,
+  "displayRequestDuration": true,
+  "syntaxHighlight": {
+    "activate": true,
+    "theme": "agate"
+  },
+  "persistAuthorization": true
+}

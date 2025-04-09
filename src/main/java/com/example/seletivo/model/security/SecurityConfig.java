@@ -43,10 +43,16 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/swagger-ui/**", 
                     "/swagger-ui.html", 
+                    "/custom-swagger-ui.html",
+                    "/custom-swagger-ui",
                     "/v3/api-docs/**", 
                     "/v3/api-docs.yaml",
                     "/swagger-resources/**",
-                    "/webjars/**"
+                    "/webjars/**",
+                    "/js/**", 
+                    "/css/**",
+                    "/images/**",
+                    "/favicon.ico"                    
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -79,3 +85,4 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 }
+
