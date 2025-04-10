@@ -1,3 +1,4 @@
+com\example\seletivo\controller\SwaggerUIController.class
 com\example\seletivo\model\service\MinioService.class
 com\example\seletivo\model\entity\Endereco.class
 com\example\seletivo\model\mapper\ServidorEfetivoMapperImpl.class
