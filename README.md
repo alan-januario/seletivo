@@ -27,7 +27,7 @@ docker-compose up -d
 ```
 
 4. Acesse a API em http://localhost:8080
-5. Acesse a documentação Swagger em http://localhost:8080/swagger-ui/index.html
+5. Acesse a documentação Swagger em http://localhost:8080/custom-swagger-ui.html
 6. Para acessar o console do MinIO, acesse http://localhost:9001 (usuário: minioadmin, senha: minioadmin)
 
 ## Autenticação
