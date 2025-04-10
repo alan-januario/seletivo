@@ -3,6 +3,8 @@
 ## Descrição
 API REST para gerenciamento de servidores públicos efetivos e temporários, unidades e lotações.
 
+Gitbub: https://github.com/alan-januario/seletivo
+
 ## Tecnologias Utilizadas
 - Java 17
 - Spring Boot 3.4.4
