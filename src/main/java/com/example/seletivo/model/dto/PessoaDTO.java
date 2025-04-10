@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -42,4 +43,8 @@ public class PessoaDTO {
     
     @Schema(description = "Lista de endereços")
     private Set<EnderecoDTO> enderecos;
+
+    @Schema(description = "Fotos do servidor")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private FotoPessoaDTO fotoPessoa;
 }

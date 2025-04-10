@@ -92,8 +92,22 @@ public class LotacaoService {
 
                 @Transactional
                 public LotacaoDTO save(LotacaoDTO lotacaoDTO) {
+                    // Verificar se é uma atualização (ID presente) ou uma criação
+                    boolean isUpdate = lotacaoDTO.getId() != null && lotacaoDTO.getId() > 0;
+        
+                    if (isUpdate) {
+                        // Verificar se a lotação existe antes de atualizar
+                        if (!lotacaoRepository.existsById(lotacaoDTO.getId())) {
+                            throw new ResourceNotFoundException("Lotação não encontrada com o ID: " + lotacaoDTO.getId());
+                        }
+                    }         
+                    // Converter DTO para entidade
                     Lotacao lotacao = lotacaoMapper.toEntity(lotacaoDTO);
+        
+                    // Salvar a entidade (o Spring Data JPA decide se é insert ou update)
                     lotacao = lotacaoRepository.save(lotacao);
+        
+                    // Converter entidade de volta para DTO e retornar
                     return lotacaoMapper.toDto(lotacao);
                 }
 

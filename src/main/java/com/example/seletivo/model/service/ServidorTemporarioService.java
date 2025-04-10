@@ -65,22 +65,47 @@ public class ServidorTemporarioService {
                 throw new IllegalArgumentException("Dados da pessoa são obrigatórios");
             }
             
-            // 2. Criar e salvar a pessoa usando PessoaService
-            PessoaDTO pessoaDTO = new PessoaDTO();
-            pessoaDTO.setNome(servidorTemporarioDTO.getPessoa().getNome());
-            pessoaDTO.setDataNascimento(servidorTemporarioDTO.getPessoa().getDataNascimento());
-            pessoaDTO.setSexo(servidorTemporarioDTO.getPessoa().getSexo());
-            pessoaDTO.setMae(servidorTemporarioDTO.getPessoa().getMae());
-            pessoaDTO.setPai(servidorTemporarioDTO.getPessoa().getPai());
+            // Verificar se é uma atualização (ID presente) ou uma criação
+            boolean isUpdate = servidorTemporarioDTO.getId() != null && servidorTemporarioDTO.getId() > 0;
             
-            PessoaDTO pessoaSalva = pessoaService.save(pessoaDTO);
+            PessoaDTO pessoaSalva;
             
-            // 3. Inserir o servidor temporário usando o repository em vez de JDBC direto
-            servidorTemporarioRepository.inserirServidorTemporario(
-                pessoaSalva.getId(),
-                servidorTemporarioDTO.getDataAdmissao(),
-                servidorTemporarioDTO.getDataDemissao()
-            );
+            if (isUpdate) {
+                // Caso de atualização - buscar o servidor existente
+                ServidorTemporarioDTO existente = findById(servidorTemporarioDTO.getId());
+                if (existente == null) {
+                    throw new IllegalArgumentException("Servidor temporário não encontrado com o ID: " + servidorTemporarioDTO.getId());
+                }
+                
+                // Atualizar dados da pessoa
+                PessoaDTO pessoaDTO = servidorTemporarioDTO.getPessoa();
+                pessoaDTO.setId(existente.getPessoa().getId()); // Manter o mesmo ID da pessoa
+                pessoaSalva = pessoaService.update(pessoaDTO); // Assumindo que existe um método update no PessoaService
+                
+                // Atualizar dados do servidor temporário
+                servidorTemporarioRepository.atualizarServidorTemporario(
+                    servidorTemporarioDTO.getId(),
+                    servidorTemporarioDTO.getDataAdmissao(),
+                    servidorTemporarioDTO.getDataDemissao()
+                );
+            } else {
+                // Caso de criação - código existente
+                PessoaDTO pessoaDTO = new PessoaDTO();
+                pessoaDTO.setNome(servidorTemporarioDTO.getPessoa().getNome());
+                pessoaDTO.setDataNascimento(servidorTemporarioDTO.getPessoa().getDataNascimento());
+                pessoaDTO.setSexo(servidorTemporarioDTO.getPessoa().getSexo());
+                pessoaDTO.setMae(servidorTemporarioDTO.getPessoa().getMae());
+                pessoaDTO.setPai(servidorTemporarioDTO.getPessoa().getPai());
+                
+                pessoaSalva = pessoaService.save(pessoaDTO);
+                
+                // Inserir o servidor temporário
+                servidorTemporarioRepository.inserirServidorTemporario(
+                    pessoaSalva.getId(),
+                    servidorTemporarioDTO.getDataAdmissao(),
+                    servidorTemporarioDTO.getDataDemissao()
+                );
+            }
             
             // 4. Processar endereços se existirem
             if (servidorTemporarioDTO.getPessoa().getEnderecos() != null && 
@@ -89,8 +114,14 @@ public class ServidorTemporarioService {
                 for (EnderecoDTO enderecoDTO : servidorTemporarioDTO.getPessoa().getEnderecos()) {
                     // Verificar se o endereço já existe (tem ID) e não é zero
                     if (enderecoDTO.getId() != null && enderecoDTO.getId() != 0) {
-                        // Se já existe, apenas associa à pessoa
-                        pessoaService.adicionarEndereco(pessoaSalva.getId(), enderecoDTO.getId());
+                        // Se já existe, apenas associa à pessoa se ainda não estiver associado
+                        if (isUpdate) {
+                            // Verificar se o endereço já está associado à pessoa
+                            // Se não estiver, associar
+                            pessoaService.adicionarEndereco(pessoaSalva.getId(), enderecoDTO.getId());
+                        } else {
+                            pessoaService.adicionarEndereco(pessoaSalva.getId(), enderecoDTO.getId());
+                        }
                         continue;
                     }
                     
@@ -143,7 +174,7 @@ public class ServidorTemporarioService {
             
             // 5. Construir o DTO de retorno manualmente
             ServidorTemporarioDTO result = new ServidorTemporarioDTO();
-            result.setId(pessoaSalva.getId());
+            result.setId(isUpdate ? servidorTemporarioDTO.getId() : pessoaSalva.getId());
             result.setDataAdmissao(servidorTemporarioDTO.getDataAdmissao());
             result.setDataDemissao(servidorTemporarioDTO.getDataDemissao());
             result.setPessoa(pessoaSalva);

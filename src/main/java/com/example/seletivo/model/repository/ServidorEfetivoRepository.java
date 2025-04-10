@@ -16,7 +16,7 @@ public interface ServidorEfetivoRepository extends JpaRepository<ServidorEfetivo
     Page<ServidorEfetivo> findByNomeContaining(@Param("nome") String nome, Pageable pageable);
     
     @Modifying
-    @Query(value = "INSERT INTO pessoa_endereco (pes_id, end_id) VALUES (:pessoaId, :enderecoId)", nativeQuery = true)
+    @Query(value = "INSERT INTO pessoa_endereco (pes_id, end_id) VALUES (:pessoaId, :enderecoId) ON CONFLICT DO NOTHING", nativeQuery = true)
     void adicionarEnderecoPessoa(@Param("pessoaId") Long pessoaId, @Param("enderecoId") Long enderecoId);
     
     @Modifying
@@ -24,7 +24,8 @@ public interface ServidorEfetivoRepository extends JpaRepository<ServidorEfetivo
     void deleteServidorEfetivoById(@Param("id") Long id);
     
    @Query("SELECT se FROM ServidorEfetivo se JOIN se.pessoa p JOIN p.lotacoes l " +
-       "WHERE l.unidade.id = :unidadeId AND (l.dataRemocao IS NULL OR l.dataRemocao > CURRENT_DATE)")
+       "WHERE l.unidade.id = :unidadeId ")
+       ///*AND (l.dataRemocao IS NULL OR l.dataRemocao > CURRENT_DATE)*/
     Page<ServidorEfetivo> findByUnidadeAtual(@Param("unidadeId") Long unidadeId, Pageable pageable);
 
 }

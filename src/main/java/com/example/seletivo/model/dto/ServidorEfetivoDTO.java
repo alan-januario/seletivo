@@ -19,5 +19,5 @@ public class ServidorEfetivoDTO {
     
     @Schema(description = "Matrícula do servidor", example = "123456")
     @NotBlank(message = "{validation.servidorEfetivo.matricula.notblank}")
-    private String matricula;
+    private String matricula; 
 }

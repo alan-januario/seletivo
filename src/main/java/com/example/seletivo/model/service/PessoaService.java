@@ -6,6 +6,7 @@ import com.example.seletivo.model.entity.Endereco;
 import com.example.seletivo.model.entity.Pessoa;
 import com.example.seletivo.model.mapper.PessoaMapper;
 import com.example.seletivo.model.repository.EnderecoRepository;
+import com.example.seletivo.model.repository.FotoPessoaRepository;
 import com.example.seletivo.model.repository.PessoaRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -49,18 +50,19 @@ public class PessoaService {
     }
 
     @Transactional
-    public PessoaDTO update(Long id, PessoaDTO pessoaDTO) {
-        if (!pessoaRepository.existsById(id)) {
-            throw new ResourceNotFoundException(
-                    messageSource.getMessage("error.pessoa.notfound", 
-                            new Object[]{id}, 
-                            LocaleContextHolder.getLocale())
-            );
+    public PessoaDTO update(PessoaDTO pessoaDTO) {
+        // Verificar se a pessoa existe
+        if (pessoaDTO.getId() == null || !pessoaRepository.existsById(pessoaDTO.getId())) {
+            throw new IllegalArgumentException("Pessoa não encontrada com o ID: " + pessoaDTO.getId());
         }
         
+        // Mapear DTO para entidade
         Pessoa pessoa = pessoaMapper.toEntity(pessoaDTO);
-        pessoa.setId(id);
+        
+        // Salvar a entidade atualizada
         pessoa = pessoaRepository.save(pessoa);
+        
+        // Retornar o DTO atualizado
         return pessoaMapper.toDto(pessoa);
     }
 

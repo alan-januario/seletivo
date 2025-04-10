@@ -32,4 +32,8 @@ public interface ServidorTemporarioRepository extends JpaRepository<ServidorTemp
     @Modifying
     @Query(value = "DELETE FROM servidor_temporario WHERE pes_id = :id", nativeQuery = true)
     void deleteServidorTemporarioById(@Param("id") Long id);
+
+    @Modifying
+    @Query(value = "UPDATE servidor_temporario SET data_admissao = :dataAdmissao, data_demissao = :dataDemissao WHERE pes_id = :id", nativeQuery = true)
+    void atualizarServidorTemporario(@Param("id") Long id, @Param("dataAdmissao") LocalDate dataAdmissao, @Param("dataDemissao") LocalDate dataDemissao);
 }
